@@ -3,9 +3,6 @@ name: Build OpenWrt for Cudy WR3000V
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 2 * *"
-'
 
 jobs:
   build:
