@@ -1,50 +1,71 @@
-name: Build OpenWrt for Cudy WR3000 V2
+name: Build OpenWrt Firmware
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
+    runs-on: ubuntu-22.04
     
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Checkout OpenWrt
+      run: |
+        git clone --depth 1 --branch v22.03.6 https://github.com/openwrt/openwrt.git openwrt
         
-      - name: Clone LEDE source
-        run: |
-          git clone --depth 1 https://github.com/coolsnowwolf/lede.git lede
-          cd lede
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-          
-      - name: Copy config file
-        run: |
-          cd lede
-          cp ../.config .config
-          make defconfig
-          
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential ccache flex bison gawk libncurses5-dev libssl-dev zlib1g-dev libelf-dev autoconf automake libtool pkg-config
-
-      - name: Download sources
-        run: |
-          cd lede
-          make download -j8
-        timeout-minutes: 30
+    - name: Prepare files
+      run: |
+        mkdir -p openwrt/files/etc/config
+        cp -r files/* openwrt/files/
         
-      - name: Build firmware
-        run: |
-          cd lede
-          make V=s -j$(nproc)
-        timeout-minutes: 300
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git build-essential libssl-dev libncurses5-dev \
+          gawk flex bison libelf-dev zlib1g-dev libncursesw5-dev \
+          python3-distutils luajit liblua5.3-dev ccache subversion \
+          libzstd-dev
         
-      - name: Upload firmware
-        uses: actions/upload-artifact@v4
-        with:
-          name: openwrt-cudy-wr3000v2
-          path: lede/bin/targets/mediatek/filogic/
-          retention-days: 7
+    - name: Update feeds
+      run: |
+        cd openwrt
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+        
+    - name: Configure
+      run: |
+        cd openwrt
+        cat > .config << 'EOF'
+CONFIG_TARGET_hisilicon=y
+CONFIG_TARGET_hisilicon_luofu=y
+CONFIG_TARGET_hisilicon_luofu_ax3000_lite=y
+CONFIG_PACKAGE_wpad-openssl=y
+CONFIG_PACKAGE_wpa-supplicant=y
+CONFIG_PACKAGE_libiwinfo-lua=y
+CONFIG_PACKAGE_luci=y
+CONFIG_PACKAGE_luci-app-wireguard=y
+CONFIG_PACKAGE_luci-proto-ipv6=y
+CONFIG_PACKAGE_luci-theme-bootstrap=y
+EOF
+        make defconfig
+        
+    - name: Download
+      run: |
+        cd openwrt
+        make download -j$(nproc)
+        
+    - name: Build
+      run: |
+        cd openwrt
+        make -j$(nproc) V=s
+        
+    - name: Upload firmware
+      uses: actions/upload-artifact@v4
+      with:
+        name: openwrt-firmware
+        path: openwrt/bin/targets/hisilicon/luofu/*.bin
+        retention-days: 7
