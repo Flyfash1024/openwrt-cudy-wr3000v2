@@ -69,3 +69,4 @@ EOF
         name: openwrt-firmware
         path: 'openwrt/bin/targets/hisilicon/luofu/*.bin'
         retention-days: 7
+
