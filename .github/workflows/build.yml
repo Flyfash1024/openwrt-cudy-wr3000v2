@@ -1,13 +1,12 @@
 name: Build OpenWrt for Cudy WR3000V
 
-
 on:
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-hours: 6
+    timeout-minutes: 360
     
     steps:
       - name: Checkout source
@@ -36,13 +35,13 @@ jobs:
           cd lede
           make download -j8
         timeout-minutes: 30
-          
+        
       - name: Build firmware
         run: |
           cd lede
           make V=s -j$(nproc)
-        timeout-hours: 5
-          
+        timeout-minutes: 300
+        
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
