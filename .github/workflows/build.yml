@@ -14,8 +14,7 @@ jobs:
       uses: actions/checkout@v4
       
     - name: Checkout OpenWrt
-      run: |
-        git clone --depth 1 --branch v22.03.6 https://github.com/openwrt/openwrt.git openwrt
+      run: git clone --depth 1 --branch v22.03.6 https://github.com/openwrt/openwrt.git openwrt
         
     - name: Prepare files
       run: |
@@ -23,9 +22,7 @@ jobs:
         cp -r files/* openwrt/files/
         
     - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y git build-essential libssl-dev libncurses5-dev gawk flex bison libelf-dev zlib1g-dev libncursesw5-dev python3-distutils luajit liblua5.3-dev ccache subversion libzstd-dev
+      run: sudo apt-get update && sudo apt-get install -y git build-essential libssl-dev libncurses5-dev gawk flex bison libelf-dev zlib1g-dev libncursesw5-dev python3-distutils luajit liblua5.3-dev ccache subversion libzstd-dev
         
     - name: Update feeds
       run: |
@@ -36,18 +33,16 @@ jobs:
     - name: Configure
       run: |
         cd openwrt
-        cat > .config << 'EOF'
-CONFIG_TARGET_hisilicon=y
-CONFIG_TARGET_hisilicon_luofu=y
-CONFIG_TARGET_hisilicon_luofu_ax3000_lite=y
-CONFIG_PACKAGE_wpad-openssl=y
-CONFIG_PACKAGE_wpa-supplicant=y
-CONFIG_PACKAGE_libiwinfo-lua=y
-CONFIG_PACKAGE_luci=y
-CONFIG_PACKAGE_luci-app-wireguard=y
-CONFIG_PACKAGE_luci-proto-ipv6=y
-CONFIG_PACKAGE_luci-theme-bootstrap=y
-EOF
+        echo "CONFIG_TARGET_hisilicon=y" > .config
+        echo "CONFIG_TARGET_hisilicon_luofu=y" >> .config
+        echo "CONFIG_TARGET_hisilicon_luofu_ax3000_lite=y" >> .config
+        echo "CONFIG_PACKAGE_wpad-openssl=y" >> .config
+        echo "CONFIG_PACKAGE_wpa-supplicant=y" >> .config
+        echo "CONFIG_PACKAGE_libiwinfo-lua=y" >> .config
+        echo "CONFIG_PACKAGE_luci=y" >> .config
+        echo "CONFIG_PACKAGE_luci-app-wireguard=y" >> .config
+        echo "CONFIG_PACKAGE_luci-proto-ipv6=y" >> .config
+        echo "CONFIG_PACKAGE_luci-theme-bootstrap=y" >> .config
         make defconfig
         
     - name: Download
