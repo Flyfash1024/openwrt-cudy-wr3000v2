@@ -1,4 +1,4 @@
-name: Build OpenWrt for Cudy WR3000V
+name: Build OpenWrt for Cudy WR3000 V2
 
 on:
   workflow_dispatch:
