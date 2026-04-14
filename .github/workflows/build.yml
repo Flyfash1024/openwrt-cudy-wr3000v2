@@ -67,5 +67,5 @@ EOF
       uses: actions/upload-artifact@v4
       with:
         name: openwrt-firmware
-        path: openwrt/bin/targets/hisilicon/luofu/*.bin
+        path: 'openwrt/bin/targets/hisilicon/luofu/*.bin'
         retention-days: 7
