@@ -14,7 +14,7 @@ jobs:
       uses: actions/checkout@v4
       
     - name: Checkout OpenWrt
-      run: git clone --depth 1 --branch v22.03.6 https://github.com/openwrt/openwrt.git openwrt
+      run: git clone --depth 1 --branch v25.12.2 https://github.com/openwrt/openwrt.git openwrt
         
     - name: Prepare files
       run: |
@@ -23,7 +23,7 @@ jobs:
         
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y git build-essential libssl-dev libncurses5-dev gawk flex bison libelf-dev zlib1g-dev libncursesw5-dev python3-distutils luajit liblua5.3-dev ccache subversion libzstd-dev
-        
+    
     - name: Update feeds
       run: |
         cd openwrt
@@ -33,15 +33,15 @@ jobs:
     - name: Configure
       run: |
         cd openwrt
-        echo "CONFIG_TARGET_hisilicon=y" > .config
-        echo "CONFIG_TARGET_hisilicon_luofu=y" >> .config
-        echo "CONFIG_TARGET_hisilicon_luofu_ax3000_lite=y" >> .config
+        # 使用 MediaTek mt7981 目标 (Cudy WR3000V2 使用的芯片)
+        echo "CONFIG_TARGET_mediatek=y" > .config
+        echo "CONFIG_TARGET_mediatek_mt7981=y" >> .config
+        echo "CONFIG_TARGET_mediatek_mt7981_DEVICE_cudy_wr3000v2=y" >> .config
         echo "CONFIG_PACKAGE_wpad-openssl=y" >> .config
         echo "CONFIG_PACKAGE_wpa-supplicant=y" >> .config
-        echo "CONFIG_PACKAGE_libiwinfo-lua=y" >> .config
         echo "CONFIG_PACKAGE_luci=y" >> .config
         echo "CONFIG_PACKAGE_luci-app-wireguard=y" >> .config
-        echo "CONFIG_PACKAGE_luci-proto-ipv6=y" >> .config
+        echo "CONFIG_PACKAGE_luci-app-wol=y" >> .config
         echo "CONFIG_PACKAGE_luci-theme-bootstrap=y" >> .config
         make defconfig
         
@@ -59,4 +59,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: openwrt-firmware
-        path: openwrt/bin/targets/hisilicon/luofu
+        path: openwrt/bin/targets/mediatek/mt7981
